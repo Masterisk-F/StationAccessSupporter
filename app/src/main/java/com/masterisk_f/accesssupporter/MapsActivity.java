@@ -15,24 +15,30 @@ import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.ToggleButton;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MapStyleOptions;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import org.maplibre.android.MapLibre;
+import org.maplibre.android.camera.CameraUpdateFactory;
+import org.maplibre.android.geometry.LatLng;
+import org.maplibre.android.maps.MapLibreMap;
+import org.maplibre.android.maps.MapView;
+import org.maplibre.android.maps.OnMapReadyCallback;
+import org.maplibre.android.maps.Style;
+import org.maplibre.android.location.LocationComponentActivationOptions; // 追加
+import org.maplibre.android.annotations.Marker;
+import org.maplibre.android.annotations.MarkerOptions;
+import org.maplibre.android.annotations.IconFactory;
 import com.masterisk_f.accesssupporter.StationData.Station;
+
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import org.maplibre.android.annotations.Icon;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,CompoundButton.OnCheckedChangeListener {
+	public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,CompoundButton.OnCheckedChangeListener {
 	
 	
-	private GoogleMap mMap;
+	private MapLibreMap mMap;
 	private MapView mapView;
 	
 	ToggleButton nearbyStationButton;
@@ -54,33 +60,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		MapLibre.getInstance(this);
 		setContentView(R.layout.activity_maps);
 		
 		mapView=(MapView)findViewById(R.id.mapView);
-		mapView.getMapAsync(this);
 		mapView.onCreate(savedInstanceState);
+		mapView.getMapAsync(this);
 		
-		/*
-		現在地ボタンの位置変更
-		参考:
-		http://storyboard.jp/blog/locationbutton_googlemap/
-		*/
-		//View test=(View) mapView.findViewById(Integer.parseInt("1")).getParent();
-		View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
-		RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-		rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-		rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-		rlp.setMargins(30, 30, 30, 200);
-		/*
-		//コンパスボタン
-		View compassButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("5"));
-		rlp = (RelativeLayout.LayoutParams) compassButton.getLayoutParams();
-		rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-		rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-		rlp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,0);
-		rlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT,RelativeLayout.TRUE);
-		rlp.setMargins(30, 30, 30, 30);
-		*/
 		
 		nearbyStationButton=(ToggleButton)findViewById(R.id.showNearbyStations);
 		nearbyStationButton.setOnCheckedChangeListener(this);
@@ -150,17 +136,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 	 * installed Google Play services and returned to the app.
 	 */
 	@Override
-	public void onMapReady(GoogleMap googleMap) {
-		mMap = googleMap;
+	public void onMapReady(MapLibreMap mapLibreMap) {
+		mMap = mapLibreMap;
 		mMap.getUiSettings().setRotateGesturesEnabled(false);
 		mMap.getUiSettings().setTiltGesturesEnabled(false);
-		mMap.setIndoorEnabled(false);
-		if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-				== PackageManager.PERMISSION_GRANTED) {
-			mMap.setMyLocationEnabled(true);
-		}
+		//mMap.setIndoorEnabled(false); // MapLibreには直接的なIndoorモード設定がない場合がある
 		
-		mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this,R.raw.map_style));
+		// OSMスタイルを設定
+		mMap.setStyle("https://tile.openstreetmap.jp/styles/osm-bright-ja/style.json", new Style.OnStyleLoaded() {
+			@Override
+			public void onStyleLoaded(Style style) {
+				if (ContextCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+						== PackageManager.PERMISSION_GRANTED) {
+					LocationComponentActivationOptions locationComponentActivationOptions = LocationComponentActivationOptions.builder(MapsActivity.this, style)
+							.build();
+					mMap.getLocationComponent().activateLocationComponent(locationComponentActivationOptions);
+					mMap.getLocationComponent().setLocationComponentEnabled(true);
+				}
+			}
+		});
 		
 		LatLng current;
 		AccessSupporterApplication application=(AccessSupporterApplication)getApplication();
@@ -170,7 +164,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 			Location loc=application.getCurrentLocation();
 			current=new LatLng(loc.getLatitude(),loc.getLongitude());
 		}
-		mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current,14f));
+		mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current,14.0));
 		
 		
 		
@@ -189,28 +183,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 		
 	}
 	void setNearbyStations(){
+		// 既存のマーカーを削除
+		if(nearbyStations!=null){
+			for(Marker mk:nearbyStations){
+				mk.remove();
+			}
+			nearbyStations.clear();
+		} else {
+			nearbyStations = new ArrayList<>();
+		}
+		
+		if(!nearbyStationButton.isChecked()){
+			return;
+		}
+
 		AccessSupporterApplication application=(AccessSupporterApplication)getApplication();
-		if(nearbyStations==null && application.getCurrentLocation()!=null){
+		if(application.getCurrentLocation()!=null){
 			int num=80;
 			List<Station>list=application.getStationHandler()
 					.getNearbyStationsList(application.getCurrentLocation(),num);
-			nearbyStations=new ArrayList<Marker>(num);
+			
 			for(Station sta : list){
 				LatLng latLng=new LatLng(sta.getLatitude(),sta.getLongitude());
 				Marker mk=mMap.addMarker(new MarkerOptions().position(latLng)
 						.title(sta.getStationName())
-						.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-						.zIndex(0f));
+						.icon(getMarkerIcon(240.0f))); // HUE_BLUE
 				nearbyStations.add(mk);
 			}
 		}
-		
-		if(nearbyStations!=null){
-			for(Marker mk:nearbyStations){
-				mk.setVisible(nearbyStationButton.isChecked());
-			}
-		}
-		
 	}
 	
 	void removeHistoryStations(){
@@ -232,11 +232,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 				LatLng latLng=new LatLng(st.getLatitude(),st.getLongitude());
 				Marker mk=mMap.addMarker(new MarkerOptions().position(latLng)
 						.title(st.getStationName())
-						.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-						.zIndex(1.0f));
+						.icon(getMarkerIcon(120.0f))); // HUE_GREEN
+						//.zIndex(1.0f));
 				historyStations.add(mk);
 			}
 		}
 		
+	}
+
+	// マーカーの色を変更するヘルパーメソッド
+	// Google Maps APIの defaultMarker(float hue) を模倣
+	private Icon getMarkerIcon(float hue) {
+		IconFactory iconFactory = IconFactory.getInstance(this);
+		Icon defaultIcon = iconFactory.defaultMarker();
+		Bitmap source = defaultIcon.getBitmap();
+		
+		int width = source.getWidth();
+		int height = source.getHeight();
+		int[] pixels = new int[width * height];
+		source.getPixels(pixels, 0, width, 0, 0, width, height);
+		
+		float[] hsv = new float[3];
+		for (int i = 0; i < pixels.length; i++) {
+			int color = pixels[i];
+			// アルファチャンネルを保持
+			int alpha = Color.alpha(color);
+			if (alpha == 0) continue; // 透明ならスキップ
+			
+			Color.colorToHSV(color, hsv);
+			
+			// 彩度が低い（白い部分や影）は色相変更の影響を受けすぎないように配慮もできるが、
+			// シンプルに色相を上書きする
+			hsv[0] = hue;
+			
+			pixels[i] = Color.HSVToColor(alpha, hsv);
+		}
+		
+		Bitmap coloredBitmap = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888);
+		return iconFactory.fromBitmap(coloredBitmap);
 	}
 }

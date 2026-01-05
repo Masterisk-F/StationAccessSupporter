@@ -117,8 +117,13 @@ public class AccessSupporterService extends Service implements LocationListener{
 		
 
 		
-		registerReceiver(screenActionReceiver,new IntentFilter(Intent.ACTION_SCREEN_ON));
-		registerReceiver(screenActionReceiver,new IntentFilter(Intent.ACTION_SCREEN_OFF));
+		if (android.os.Build.VERSION.SDK_INT >= 33) {
+			registerReceiver(screenActionReceiver,new IntentFilter(Intent.ACTION_SCREEN_ON), Context.RECEIVER_EXPORTED);
+			registerReceiver(screenActionReceiver,new IntentFilter(Intent.ACTION_SCREEN_OFF), Context.RECEIVER_EXPORTED);
+		} else {
+			registerReceiver(screenActionReceiver,new IntentFilter(Intent.ACTION_SCREEN_ON));
+			registerReceiver(screenActionReceiver,new IntentFilter(Intent.ACTION_SCREEN_OFF));
+		}
 
 	}
 	
