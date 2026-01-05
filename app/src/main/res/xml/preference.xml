@@ -52,4 +52,10 @@
         android:key="intervals_random"
         android:dependency="five_min_access"/>
 
+    <Preference
+        android:key="data_version"
+        android:title="データバージョン"
+        android:summary="バージョン情報を読み込み中..."
+        />
+
 </PreferenceScreen>
