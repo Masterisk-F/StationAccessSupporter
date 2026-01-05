@@ -16,3 +16,10 @@
 ## クレジット
 本アプリでは、以下の駅データを使用しています。
 *   [Seo-4d696b75/station_database](https://github.com/Seo-4d696b75/station_database)
+
+## ライセンス
+本ソフトウェアは、以下のライセンスの下で提供されています。
+
+*   **ソースコード**: [GNU General Public License v3.0 (GPLv3)](./LICENSE)
+*   **駅データ**: [クリエイティブ・コモンズ 表示 - 継承 4.0 国際 ライセンス (CC BY-SA 4.0)](http://creativecommons.org/licenses/by-sa/4.0/)
+    <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
