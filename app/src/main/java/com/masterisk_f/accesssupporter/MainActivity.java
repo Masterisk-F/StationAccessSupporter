@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity
 	*/
 
 	
+	private static final int PERMISSION_REQUEST_CODE = 1001;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,9 +48,15 @@ public class MainActivity extends AppCompatActivity
 		
 		setContentView(R.layout.activity_main);
 
-		
+		if (checkPermissions()) {
+			initApp();
+		} else {
+			requestPermissions();
+		}
+	}
+
+	private void initApp() {
 		setTabAndPager();
-		
 		
 		notification=(ToggleButton)findViewById(R.id.notification);
 
@@ -65,7 +73,96 @@ public class MainActivity extends AppCompatActivity
 		
 		Intent in=new Intent(MainActivity.this,AccessSupporterService.class);
 		startService(in.setAction("activityCreated"));
-		
+	}
+
+	private boolean checkPermissions() {
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+			boolean locationPermission = checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+					checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+			
+			boolean notificationPermission = true;
+			if (android.os.Build.VERSION.SDK_INT >= 33) { // Android 13+
+				notificationPermission = checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+			}
+			
+			return locationPermission && notificationPermission;
+		}
+		return true;
+	}
+
+	private void requestPermissions() {
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+			java.util.List<String> permissions = new java.util.ArrayList<>();
+			
+			if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+				permissions.add(android.Manifest.permission.ACCESS_FINE_LOCATION);
+			}
+			if (checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+				permissions.add(android.Manifest.permission.ACCESS_COARSE_LOCATION);
+			}
+			if (android.os.Build.VERSION.SDK_INT >= 33) {
+				if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+					permissions.add(android.Manifest.permission.POST_NOTIFICATIONS);
+				}
+			}
+
+			if (!permissions.isEmpty()) {
+				requestPermissions(permissions.toArray(new String[0]), PERMISSION_REQUEST_CODE);
+			} else {
+				// Should not happen if checkPermissions returned false, but safe fallback
+				initApp();
+			}
+		} else {
+			initApp();
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults); // Call super to be safe
+		if (requestCode == PERMISSION_REQUEST_CODE) {
+			boolean allGranted = true;
+			if (grantResults.length > 0) {
+				for (int result : grantResults) {
+					if (result != PackageManager.PERMISSION_GRANTED) {
+						allGranted = false;
+						break;
+					}
+				}
+			} else {
+				allGranted = false;
+			}
+
+			if (allGranted) {
+				initApp();
+			} else {
+				showPermissionDeniedDialog();
+			}
+		}
+	}
+
+	private void showPermissionDeniedDialog() {
+		new android.app.AlertDialog.Builder(this)
+				.setTitle("権限が必要です")
+				.setMessage("このアプリを使用するには、位置情報と通知の権限が必要です。")
+				.setPositiveButton("設定を開く", new android.content.DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(android.content.DialogInterface dialog, int which) {
+						Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+						android.net.Uri uri = android.net.Uri.fromParts("package", getPackageName(), null);
+						intent.setData(uri);
+						startActivity(intent);
+						finish();
+					}
+				})
+				.setNegativeButton("閉じる", new android.content.DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(android.content.DialogInterface dialog, int which) {
+						finish();
+					}
+				})
+				.setCancelable(false)
+				.show();
 	}
 	
 	
