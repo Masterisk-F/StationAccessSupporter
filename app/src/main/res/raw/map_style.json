@@ -1,0 +1,12 @@
+[
+  {
+  "featureType": "transit.line",
+  "elementType": "geometry",
+  "stylers": [
+    { "color": "#FF3333",
+      "weight":"1"
+    }
+  ]
+  }
+  
+]

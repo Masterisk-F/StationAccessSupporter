@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="display_size_entries">
+        <item>Umidigi F1 Play(2340×1080)</item>
+        <item>Huawei Nova lite 2(2160*1080)</item>
+        <item>Covia g07+(1920*1080)</item>
+        <item>Asus Zenfone 2 Lazer(1280*720)</item>
+    </string-array>
+    <string-array name="display_size_entryvalues">
+        <item>2340*1080</item>
+        <item>2160*1080</item>
+        <item>1920*1080</item>
+        <item>1280*720</item>
+    </string-array>
+
+    <string-array name="vibration_entries">
+        <item>常に動作</item>
+        <item>駅メモがフォアグラウンドでないときのみ動作</item>
+        <item>動作しない</item>
+    </string-array>
+    <string-array name="vibration_entryvalues">
+        <item>true</item>
+        <item>when_needed</item>
+        <item>false</item>
+    </string-array>
+    
+    
+    
+    <string-array name="location_entries">
+        <item>GPS+network</item>
+        <item>GPSのみ</item>
+        <item>networkのみ</item>
+    </string-array>
+    <string-array name="location_entryvalues">
+        <item>both</item>
+        <item>gps</item>
+        <item>network</item>
+    </string-array>
+    
+    
+    
+    <string-array name="min_update_time_entries">
+        <item>1秒</item>
+        <item>3秒</item>
+        <item>5秒</item>
+        <item>10秒</item>
+        <item>15秒</item>
+        <item>30秒</item>
+        <item>45秒</item>
+        <item>60秒</item>
+    </string-array>
+    <string-array name="min_update_time_entryvalues">
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+    </string-array>
+    
+    
+    
+    <string-array name="min_update_distance_entries">
+        <item>1m</item>
+        <item>5m</item>
+        <item>10m</item>
+        <item>30m</item>
+        <item>50m</item>
+        <item>75m</item>
+        <item>100m</item>
+    </string-array>
+    <string-array name="min_update_distance_entryvalues">
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+        <item>50</item>
+        <item>75</item>
+        <item>100</item>
+    </string-array>
+</resources>

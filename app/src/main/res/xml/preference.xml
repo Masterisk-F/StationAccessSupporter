@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:title="探索範囲に廃駅を含める"
+        android:summary="現在は一部の廃駅のみ対応"
+        android:key="contain_abolished_station"/>
+
+
+
+    <ListPreference
+        android:key="vibration"
+        android:title="バイブレーション"
+        android:summary="バイブレーションの条件を設定"
+        android:entries="@array/vibration_entries"
+        android:entryValues="@array/vibration_entryvalues"
+        />
+
+    <ListPreference
+        android:key="location"
+        android:title="位置情報"
+        android:summary="使用する位置情報を選択"
+        android:entries="@array/location_entries"
+        android:entryValues="@array/location_entryvalues"
+        />
+    <ListPreference
+        android:key="min_update_time"
+        android:title="更新時間"
+        android:summary="この時間間隔で位置情報を更新"
+        android:entries="@array/min_update_time_entries"
+        android:entryValues="@array/min_update_time_entryvalues"
+        />
+    <ListPreference
+        android:key="min_update_distance"
+        android:title="更新距離"
+        android:summary="この距離以上の移動で位置情報を更新"
+        android:entries="@array/min_update_distance_entries"
+        android:entryValues="@array/min_update_distance_entryvalues"
+        />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:title="同じ駅に約5分毎に通知"
+        android:summary="(注)未実装"
+        android:key="five_min_access"/>
+    <SwitchPreference
+        android:defaultValue="false"
+        android:title="通知間隔をランダムにする"
+        android:summary="5~6分の間でランダムに間隔を決定する"
+        android:key="intervals_random"
+        android:dependency="five_min_access"/>
+
+</PreferenceScreen>
