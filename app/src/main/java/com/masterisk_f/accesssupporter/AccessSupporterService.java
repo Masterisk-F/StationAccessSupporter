@@ -386,7 +386,18 @@ public class AccessSupporterService extends Service implements LocationListener{
 						Thread.sleep(305000);
 					}
 					if(prefs.getBoolean("five_min_access",false)){
-						//TODO:ここで通知処理
+						String vibration=prefs.getString("vibration","when_needed");
+						boolean shouldVibrate = vibration.equals("true") || (vibration.equals("when_needed") && !ekimemoIsForeground());
+
+						if(currentStation!=null && currentLocation!=null){
+							android.app.Notification notification = createNotification(
+									"AccessSupporter",
+									"最寄り駅 : "+currentStation.getStationName()+" ("+currentLocation.getProvider()+")",
+									PendingIntent.getActivity(AccessSupporterService.this,1,new Intent(AccessSupporterService.this,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE),
+									shouldVibrate
+							);
+							notificationManager.notify(1, notification);
+						}
 						//Loop
 						setIntervals();
 					}
