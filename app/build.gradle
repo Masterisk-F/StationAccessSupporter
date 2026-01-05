@@ -24,6 +24,10 @@ android {
     }
 }
 
+
+// Logic for downloading CSVs is now handled via dependencies
+apply from: rootProject.file('gradle/station-dependencies.gradle')
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
@@ -34,16 +38,12 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
     testImplementation 'junit:junit:4.12'
-}
 
-//csvダウンロード
-def f_sta = new File("app/src/main/assets/" + "station_database_out_" + "station.csv")
-f_sta.delete()
-f_sta << new URL("https://raw.githubusercontent.com/Seo-4d696b75/station_database/main/out/main/station.csv").openStream()
-def f_line = new File("app/src/main/assets/" + "station_database_out_" + "line.csv")
-f_line.delete()
-f_line << new URL("https://raw.githubusercontent.com/Seo-4d696b75/station_database/main/out/main/line.csv").openStream()
-def f_reg = new File("app/src/main/assets/" + "station_database_out_" + "register.csv")
-f_reg.delete()
-f_reg << new URL("https://raw.githubusercontent.com/Seo-4d696b75/station_database/main/out/main/register.csv").openStream()
+    // Station Database CSVs
+    def stationVer = 'v20251221'
+    stationData "station-db:station:${stationVer}@csv"
+    stationData "station-db:line:${stationVer}@csv"
+    stationData "station-db:register:${stationVer}@csv"
+    stationData "station-db:latest_info:${stationVer}@json"
+}
 

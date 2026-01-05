@@ -182,3 +182,9 @@ fabric.properties
 
 # Sensitive File Removal
 app/src/debug/res/values/google_maps_api.xml
+
+# Station Database Assets
+app/src/main/assets/station.csv
+app/src/main/assets/line.csv
+app/src/main/assets/register.csv
+app/src/main/assets/latest_info.json

@@ -144,9 +144,9 @@ public class AccessSupporterService extends Service implements LocationListener{
 			if(stationHandler==null){
 				try{
 					stationHandler = new StationHandler(
-							new InputStreamReader(getAssets().open("station_database_out_station.csv", AssetManager.ACCESS_BUFFER)),
-							new InputStreamReader(getAssets().open("station_database_out_line.csv", AssetManager.ACCESS_BUFFER)),
-							new InputStreamReader(getAssets().open("station_database_out_register.csv", AssetManager.ACCESS_BUFFER))
+							new InputStreamReader(getAssets().open("station.csv", AssetManager.ACCESS_BUFFER)),
+							new InputStreamReader(getAssets().open("line.csv", AssetManager.ACCESS_BUFFER)),
+							new InputStreamReader(getAssets().open("register.csv", AssetManager.ACCESS_BUFFER))
 					);
 					//Applicationに登録
 					((AccessSupporterApplication)getApplication()).setStationHandler(stationHandler);

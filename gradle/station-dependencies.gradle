@@ -1,0 +1,34 @@
+repositories {
+    ivy {
+        url 'https://raw.githubusercontent.com/Seo-4d696b75/station_database'
+        patternLayout {
+            // [revision] maps to the tag (e.g., v20251221)
+            // URL structure: https://raw.githubusercontent.com/.../refs/tags/v20251221/out/main/station.csv
+            artifact 'refs/tags/[revision]/out/main/[artifact].[ext]'
+            // Fallback for files at root (like latest_info.json)
+            artifact 'refs/tags/[revision]/[artifact].[ext]'
+        }
+        metadataSources {
+            artifact()
+        }
+    }
+}
+
+configurations {
+    stationData
+}
+
+task downloadStationData(type: Copy) {
+    from configurations.stationData
+    into 'src/main/assets'
+    rename { String fileName ->
+        if (fileName.contains("station")) return "station.csv"
+        if (fileName.contains("line")) return "line.csv"
+        if (fileName.contains("register")) return "register.csv"
+        if (fileName.contains("latest_info")) return "latest_info.json"
+        return fileName
+    }
+}
+
+// Hook into preBuild to ensure assets are downloaded before build starts
+preBuild.dependsOn downloadStationData
