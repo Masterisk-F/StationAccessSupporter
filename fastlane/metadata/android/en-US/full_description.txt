@@ -1,0 +1,15 @@
+This is an Android application that notifies you of the nearest station.
+It sends a notification when the nearest station changes while running.
+
+## Requirements
+To use this application, the following permissions are required:
+* Location
+* Notification
+
+## Background
+Originally created for the author's personal use.
+Since the similar app "最寄り駅サーチ" has stopped updating, I decided to release it as an alternative.
+
+## Credits
+This app uses the following station data.
+* [Seo-4d696b75/station_database](https://github.com/Seo-4d696b75/station_database)
