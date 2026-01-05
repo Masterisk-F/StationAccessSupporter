@@ -43,7 +43,6 @@
     <SwitchPreference
         android:defaultValue="false"
         android:title="同じ駅に約5分毎に通知"
-        android:summary="(注)未実装"
         android:key="five_min_access"/>
     <SwitchPreference
         android:defaultValue="false"
