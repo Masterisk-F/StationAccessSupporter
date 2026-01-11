@@ -188,3 +188,6 @@ app/src/main/assets/station.csv
 app/src/main/assets/line.csv
 app/src/main/assets/register.csv
 app/src/main/assets/latest_info.json
+
+#Build Artifacts 
+app/release/
