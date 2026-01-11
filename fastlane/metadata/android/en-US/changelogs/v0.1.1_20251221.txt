@@ -1,0 +1,3 @@
+Removed unnecessary permission requests
+
+Data Version : v20251221
