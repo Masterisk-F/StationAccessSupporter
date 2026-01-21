@@ -1,0 +1,3 @@
+Disabled dependency metadata.(for IzzyOnDroid)
+
+Data Version : v20251221

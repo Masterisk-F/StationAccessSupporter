@@ -1,0 +1,3 @@
+不要なdependency metadataを削除しました。(for IzzyOnDroid)
+
+データバージョン : v20251221
