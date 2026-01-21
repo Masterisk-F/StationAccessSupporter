@@ -1,15 +1,25 @@
-This is an Android application that notifies you of the nearest station.
-It sends a notification when the nearest station changes while running.
+Provides real-time notifications of the nearest station. This app is designed to support the gameplay of the location-based game "Station Memories!" (Eki-memo!).
 
-## Requirements
-To use this application, the following permissions are required:
-* Location
-* Notification
+★Key Features
+- Uses device location data to notify with vibration whenever the nearest station changes.
+- Can be configured to send repeated notifications every 5 minutes (plus alpha) when staying near the same station.
 
-## Background
-Originally created for the author's personal use.
-Since the similar app "最寄り駅サーチ" has stopped updating, I decided to release it as an alternative.
+★Permissions
+- Location (Always allow)
+  Used for background movement detection and identifying the nearest station.
+- Notifications
+  Used to inform the user of station information.
+- Usage Access (Optional)
+  Used to detect if "Station Memories!" is running in the foreground to suppress notification vibrations during gameplay.
 
-## Credits
-This app uses the following station data.
-* [Seo-4d696b75/station_database](https://github.com/Seo-4d696b75/station_database)
+★Background
+Developed for the author's personal use with "Station Memories!".
+It is being released for "Eki-memor-er" (Eki-memo players) who are looking for an alternative after the "Nearest Station Search" (最寄り駅サーチ) app stopped updating.
+
+★About Station Data
+This app covers railway stations in Japan, including all existing stations and some closed stations.
+It utilizes the following data source:
+- Seo-4d696b75/station_database
+  https://github.com/Seo-4d696b75/station_database
+
+The user interface is available only in Japanese.

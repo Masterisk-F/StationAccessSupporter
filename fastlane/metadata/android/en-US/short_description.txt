@@ -1,1 +1,1 @@
-Notifies you of the nearest station from your current location.
+Real-time notifications of the nearest station in Japan.
