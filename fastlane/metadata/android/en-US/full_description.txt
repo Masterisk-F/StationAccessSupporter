@@ -12,6 +12,7 @@ Also, you can check information on closed stations (abandoned stations) that are
 
 - Location (Always allow): Used for background movement detection and identifying the nearest station.
 - Notifications: Used to inform the user of station information.
+- Internet Access : Used to display maps.
 - Usage Access (Optional): Used to determine if a specific app (Station Memories!) is running in the foreground, and to suppress notification vibration while it is running.
 
 <b>Background</b>
