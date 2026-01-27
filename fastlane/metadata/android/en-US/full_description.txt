@@ -1,4 +1,5 @@
 Notifies you of the nearest station to your current location in real time.
+
 It is useful for preventing missed stops on the train, checking your approach to your destination, and ensuring you don't miss scenic views from the train window.
 Also, you can check information on closed stations (abandoned stations) that are not shown on standard maps. It is ideal for visiting abandoned stations and ruins.
 
