@@ -129,11 +129,24 @@ jobs:
           git commit -m "chore: update fastlane changelogs for ${{ steps.version_info.outputs.tag_name }}" || echo "No changes to commit"
           git push origin main
 
-      # 6. APKのビルド
+      # 6. Keystoreのセットアップ (Secretsがある場合のみ)
+      - name: Setup Keystore
+        if: ${{ secrets.SIGNING_KEY_STORE_BASE64 != '' }}
+        run: |
+          echo "${{ secrets.SIGNING_KEY_STORE_BASE64 }}" | base64 -d > app/release-key.jks
+          echo "Keystore file restored."
+
+      # 7. APKのビルド (署名付き)
       - name: Build Release APK
+        env:
+          # Secretsが存在する場合のみファイル名を設定
+          SIGNING_STORE_FILE: ${{ secrets.SIGNING_KEY_STORE_BASE64 != '' && 'release-key.jks' || '' }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: ./gradlew assembleRelease
 
-      # 7. GitHub Release の作成とAPK添付 (本番実行時のみ)
+      # 8. GitHub Release の作成とAPK添付 (本番実行時のみ)
       - name: Create GitHub Release
         if: github.event.inputs.dry_run == 'true'
         uses: softprops/action-gh-release@v2
