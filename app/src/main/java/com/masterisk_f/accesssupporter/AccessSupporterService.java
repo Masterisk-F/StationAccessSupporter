@@ -169,9 +169,10 @@ public class AccessSupporterService extends Service implements LocationListener{
 		}else if(intent.getAction().equals("stop")){
 			stopLocationUpdate();
 			stopForeground(true);//foreground終了
-			
+			stopIntervals();
+
 			isRunning=false;
-			
+
 		}else if(intent.getAction().equals("start")){
 			currentStation=null;
 			currentLocation=null;
@@ -371,14 +372,21 @@ public class AccessSupporterService extends Service implements LocationListener{
 	
 
 	
+	private void stopIntervals(){
+		if(intervalsThread!=null){
+			intervalsThread.interrupt();
+			intervalsThread=null;
+		}
+	}
+
 	private void setIntervals(){//(設定されていれば)5分毎に処理
 		if(!prefs.getBoolean("five_min_access",false))
 			return;
-		
+
 		if(intervalsThread!=null){
 			intervalsThread.interrupt();
 		}
-		
+	
 		final boolean random=prefs.getBoolean("intervals_random",false);
 		
 		intervalsThread=new Thread(new Runnable() {
@@ -390,7 +398,7 @@ public class AccessSupporterService extends Service implements LocationListener{
 					}else{
 						Thread.sleep(305000);
 					}
-					if(prefs.getBoolean("five_min_access",false)){
+					if(prefs.getBoolean("five_min_access",false) && isRunning){
 						String vibration=prefs.getString("vibration","when_needed");
 						boolean shouldVibrate = vibration.equals("true") || (vibration.equals("when_needed") && !ekimemoIsForeground());
 
