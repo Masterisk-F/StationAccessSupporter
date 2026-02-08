@@ -41,16 +41,37 @@ jobs:
         run: |
           VERSION_CODE=$(grep "versionCode" app/build.gradle | awk '{print $2}')
           VERSION_NAME=$(grep "versionName" app/build.gradle | sed 's/.*"\(.*\)".*/\1/')
+
+          # stationVerの抽出 (例: 'v20251221' -> '20251221')
+          STATION_VER_RAW=$(grep "def stationVer =" app/build.gradle | sed "s/.*'\(.*\)'.*/\1/")
+          STATION_VER=${STATION_VER_RAW#v}
+          TAG_NAME="v${VERSION_NAME}_${STATION_VER}"
+
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
           echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
-          echo "Detected Version: $VERSION_NAME ($VERSION_CODE)"
+          echo "station_ver=$STATION_VER" >> $GITHUB_OUTPUT
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
 
-      # 2. チェンジログの決定
+          echo "Detected: $TAG_NAME (Code: $VERSION_CODE)"
+
+      # 2. バージョン重複チェック
+      - name: Check for Existing Release
+        run: |
+          TAG_NAME="${{ steps.version_info.outputs.tag_name }}"
+
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            echo "::error::Tag '$TAG_NAME' already exists. Please update versionName or stationVer in build.gradle."
+            exit 1
+          fi
+          echo "Version check passed. '$TAG_NAME' is a new tag."
+
+      # 3. チェンジログの決定
       - name: Prepare Changelogs
         id: changelog
         run: |
           INPUT_EN="${{ github.event.inputs.release_notes_en }}"
           INPUT_JA="${{ github.event.inputs.release_notes_ja }}"
+          VER="${{ steps.version_info.outputs.station_ver }}"
 
           # 共通のフォールバック用Gitログ生成
           PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
@@ -63,6 +84,8 @@ jobs:
           else
             CHANGES_EN="$GIT_LOG"
           fi
+          # データバージョン追記 (English)
+          CHANGES_EN="${CHANGES_EN}"$'\n\n'"Data Version : v${VER}"
 
           # 日本語版の決定
           if [ -n "$INPUT_JA" ]; then
@@ -70,6 +93,8 @@ jobs:
           else
             CHANGES_JA="$GIT_LOG"
           fi
+          # データバージョン追記 (Japanese)
+          CHANGES_JA="${CHANGES_JA}"$'\n\n'"データバージョン : v${VER}"
 
           # GitHub Actionsの出力用（マルチライン対応）
           echo "en<<EOF" >> $GITHUB_OUTPUT
@@ -80,7 +105,7 @@ jobs:
           echo "$CHANGES_JA" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      # 3. Fastlaneのチェンジログをかき分け
+      # 4. Fastlaneのチェンジログをかき分け
       - name: Update Fastlane Changelogs
         run: |
           CODE="${{ steps.version_info.outputs.version_code }}"
@@ -93,31 +118,28 @@ jobs:
 
           echo "Fastlane changelog files updated for both en-US and ja-JP."
 
-      # 4. 生成したチェンジログをリポジトリにコミット (本番実行時のみ)
+      # 5. 生成したチェンジログをリポジトリにコミット (本番実行時のみ)
       - name: Commit Changelogs
         if: github.event.inputs.dry_run == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add fastlane/metadata/android/*/changelogs/*.txt
-          git commit -m "chore: update fastlane changelogs for v${{ steps.version_info.outputs.version_name }}" || echo "No changes to commit"
+          git commit -m "chore: update fastlane changelogs for ${{ steps.version_info.outputs.tag_name }}" || echo "No changes to commit"
           git push origin main
 
-      # 5. APKのビルド
+      # 6. APKのビルド
       - name: Build Release APK
         run: ./gradlew assembleRelease
 
-      # 6. GitHub Release の作成とAPK添付 (本番実行時のみ)
+      # 7. GitHub Release の作成とAPK添付 (本番実行時のみ)
       - name: Create GitHub Release
         if: github.event.inputs.dry_run == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version_info.outputs.version_name }}
-          name: Release ${{ steps.version_info.outputs.version_name }}
+          tag_name: ${{ steps.version_info.outputs.tag_name }}
+          name: ${{ steps.version_info.outputs.tag_name }}
           body: |
-            ## Changes (English)
-            ${{ steps.changelog.outputs.en }}
-
             ## 変更点 (日本語)
             ${{ steps.changelog.outputs.ja }}
           files: |
@@ -133,8 +155,9 @@ jobs:
         run: |
           echo "### Dry Run Completed Successfully! 🚀" >> $GITHUB_STEP_SUMMARY
           echo "#### 📦 Release Metadata" >> $GITHUB_STEP_SUMMARY
-          echo "- **Tag Name:** \`v${{ steps.version_info.outputs.version_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Release Name:** \`Release ${{ steps.version_info.outputs.version_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag Name:** \`${{ steps.version_info.outputs.tag_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release Name:** \`Release ${{ steps.version_info.outputs.tag_name }}\`" >> $GITHUB_STEP_SUMMARY
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "#### 📝 Final Release Body (Draft):" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`markdown" >> $GITHUB_STEP_SUMMARY
