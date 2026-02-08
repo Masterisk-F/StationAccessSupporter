@@ -56,6 +56,7 @@ jobs:
 
       # 2. バージョン重複チェック
       - name: Check for Existing Release
+        if: github.event.inputs.dry_run == 'true'
         run: |
           TAG_NAME="${{ steps.version_info.outputs.tag_name }}"
 
@@ -156,13 +157,11 @@ jobs:
           echo "### Dry Run Completed Successfully! 🚀" >> $GITHUB_STEP_SUMMARY
           echo "#### 📦 Release Metadata" >> $GITHUB_STEP_SUMMARY
           echo "- **Tag Name:** \`${{ steps.version_info.outputs.tag_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Release Name:** \`Release ${{ steps.version_info.outputs.tag_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release Name:** \`${{ steps.version_info.outputs.tag_name }}\`" >> $GITHUB_STEP_SUMMARY
 
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "#### 📝 Final Release Body (Draft):" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`markdown" >> $GITHUB_STEP_SUMMARY
-          echo "## Changes (English)" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.changelog.outputs.en }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## 変更点 (日本語)" >> $GITHUB_STEP_SUMMARY
           echo "${{ steps.changelog.outputs.ja }}" >> $GITHUB_STEP_SUMMARY
