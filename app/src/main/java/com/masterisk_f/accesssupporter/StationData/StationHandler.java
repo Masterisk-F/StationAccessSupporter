@@ -377,28 +377,18 @@ public class StationHandler {
 	public List<Station>  getNearbyStationsList(Location loc){
 		return getNearbyStationsList(loc,12);
 	}
-	public List<Station> getNearbyStationsList(Location loc,int num){
-		List<Station> list=new ArrayList<Station>();
-		List<Double> distanceList=new ArrayList<Double>();
-		for(int i=0;i<num;i++){
-			list.add(stationList.get(i));
-			distanceList.add(stationList.get(i).distanceTo(loc.getLongitude(),loc.getLatitude()));
-		}
-		for(Station sta: stationList){
-			if(list.subList(0, num).contains(sta)){
-				continue;
+	public List<Station> getNearbyStationsList(final Location loc, int num) {
+		List<Station> list = new ArrayList<Station>(stationList);
+		Collections.sort(list, new Comparator<Station>() {
+			@Override
+			public int compare(Station o1, Station o2) {
+				return Double.compare(
+						o1.distanceTo(loc.getLongitude(), loc.getLatitude()),
+						o2.distanceTo(loc.getLongitude(), loc.getLatitude())
+				);
 			}
-			double distance=sta.distanceTo(loc.getLongitude(),loc.getLatitude());
-			
-			for(int i=0;i<Math.min(num,distanceList.size());i++){
-				if(distance<distanceList.get(i)){
-					list.add(i,sta);
-					distanceList.add(i,distance);
-					break;
-				}
-			}
-		}
-		return new ArrayList<Station>(list.subList(0,Math.min(list.size(),num)));
+		});
+		return new ArrayList<Station>(list.subList(0, Math.min(list.size(), num)));
 	}
 	
 	
