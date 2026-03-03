@@ -156,7 +156,7 @@ jobs:
           tag_name: ${{ steps.version_info.outputs.tag_name }}
           name: ${{ steps.version_info.outputs.tag_name }}
           body: |
-            ## 変更点 (日本語)
+            ## 変更点
             ${{ steps.changelog.outputs.ja }}
           files: |
             app/build/outputs/apk/release/*.apk
