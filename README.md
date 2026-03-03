@@ -16,8 +16,13 @@
 もともと作者が個人的に使用するために作成していたアプリです。
 類似アプリである「最寄り駅サーチ」が更新を停止しているため、代替手段として公開することにしました。
 
-## 現状と予定
-現在、アプリ公開先を検討中です（F-Droidなどを想定しています）。
+## ダウンロード
+IzzyOnDroidで公開中
+
+[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Get it at IzzyOnDroid">](https://apt.izzysoft.de/fdroid/index/apk/com.masterisk_f.accesssupporter)
+
+F-DroidストアアプリにIzzyOnDroidのリポジトリを設定することで自動的にアップデートを受けることができます。
+詳細は[こちら](https://izzyondroid.org/quickstart/)
 
 ## クレジット
 本アプリでは、以下の駅データを使用しています。
