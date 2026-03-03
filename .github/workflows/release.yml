@@ -45,7 +45,7 @@ jobs:
           # stationVerの抽出 (例: 'v20251221' -> '20251221')
           STATION_VER_RAW=$(grep "def stationVer =" app/build.gradle | sed "s/.*'\(.*\)'.*/\1/")
           STATION_VER=${STATION_VER_RAW#v}
-          TAG_NAME="v${VERSION_NAME}_${STATION_VER}"
+          TAG_NAME="v${VERSION_NAME}"
 
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
           echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
