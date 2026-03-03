@@ -3,10 +3,6 @@ name: Manual Release
 on:
   workflow_dispatch:
     inputs:
-      release_notes_en:
-        description: 'Release notes (English)'
-        required: false
-        type: string
       release_notes_ja:
         description: 'リリースノート (日本語)'
         required: false
