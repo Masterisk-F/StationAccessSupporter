@@ -1,0 +1,7 @@
+* bump version to 0.1.5 and update station data
+* Update README
+* chore: update github release action
+* refactor: github release action
+* 動作を止めても5分毎通知が止まらない不具合を修正
+
+Data Version : v20260227
