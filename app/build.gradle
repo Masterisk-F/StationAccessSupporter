@@ -73,7 +73,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.5.2'
 
     // Station Database CSVs
-    def stationVer = 'v20260227'
+    def stationVer = 'v20260331'
     stationData "station-db:station:${stationVer}@csv"
     stationData "station-db:line:${stationVer}@csv"
     stationData "station-db:register:${stationVer}@csv"
