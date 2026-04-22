@@ -375,7 +375,7 @@ public class StationHandler {
 	//listで最寄り駅を求める。リニアサーチ
 	//NearbyStationsFragmentから呼ばれる
 	public List<Station>  getNearbyStationsList(Location loc){
-		return getNearbyStationsList(loc,12);
+		return getNearbyStationsList(loc,18);
 	}
 	public List<Station> getNearbyStationsList(final Location loc, int num) {
 		List<Station> list = new ArrayList<Station>(stationList);
