@@ -39,11 +39,11 @@ jobs:
       - name: Extract Version Info
         id: version_info
         run: |
-          VERSION_CODE=$(grep "versionCode" app/build.gradle | awk '{print $2}')
-          VERSION_NAME=$(grep "versionName" app/build.gradle | sed 's/.*"\(.*\)".*/\1/')
+          VERSION_CODE=$(grep "versionCode" app/build.gradle | awk '{print $2}' | tr -d '\r')
+          VERSION_NAME=$(grep "versionName" app/build.gradle | sed 's/.*"\(.*\)".*/\1/' | tr -d '\r')
 
           # stationVerの抽出 (例: 'v20251221' -> '20251221')
-          STATION_VER_RAW=$(grep "def stationVer =" app/build.gradle | sed "s/.*'\(.*\)'.*/\1/")
+          STATION_VER_RAW=$(grep "def stationVer =" app/build.gradle | sed "s/.*'\(.*\)'.*/\1/" | tr -d '\r')
           STATION_VER=${STATION_VER_RAW#v}
           TAG_NAME="v${VERSION_NAME}"
 
