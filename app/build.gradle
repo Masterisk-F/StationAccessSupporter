@@ -78,5 +78,7 @@ dependencies {
     stationData "station-db:line:${stationVer}@csv"
     stationData "station-db:register:${stationVer}@csv"
     stationData "station-db:latest_info:${stationVer}@json"
+    // ボロノイ GeoJSON 生成用（APK には同梱しない中間生成物）
+    stationData "station-db:station:${stationVer}@json"
 }
 
