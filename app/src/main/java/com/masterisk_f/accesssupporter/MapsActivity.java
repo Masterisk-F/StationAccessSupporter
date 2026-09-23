@@ -164,8 +164,9 @@ import java.util.List;
 					mMap.getLocationComponent().setLocationComponentEnabled(true);
 				}
 
-				GeoJsonSource voronoiSource = new GeoJsonSource(VORONOI_SOURCE_ID, URI.create("asset://voronoi.geojson"));
-				style.addSource(voronoiSource);
+				// station.json からビルド時に生成したボロノイ図（app/src/main/assets/voronoi.geojson）
+				// URI で渡さないと asset ではなく素の GeoJSON 文字列として解釈されてしまう
+				style.addSource(new GeoJsonSource(VORONOI_SOURCE_ID, URI.create("asset://voronoi.geojson")));
 
 				// 駅の属性（駅メモの eco/heat/cool）で色分けする
 				// 第一引数の色は、属性が未知（unknown＝廃駅など）の駅に適用される

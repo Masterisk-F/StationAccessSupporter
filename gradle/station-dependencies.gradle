@@ -32,36 +32,31 @@ task downloadStationData(type: Copy) {
     }
 }
 
-def voronoiGeoJsonFile = file('src/main/assets/voronoi.geojson')
-
 task buildVoronoiGeoJson {
     description 'station.json から駅のボロノイ範囲だけを抜き出して voronoi.geojson を作る'
+    // 出力ファイルを宣言すると、assets を消した状態（git clean 等）でも UP-TO-DATE に
+    // なって voronoi.geojson の無い APK ができてしまうため、常に再実行させる
     inputs.files { configurations.stationData }
-    outputs.file voronoiGeoJsonFile
 
     doLast {
         def srcFile = configurations.stationData.find { it.name.startsWith('station') && it.name.endsWith('.json') }
-        if (srcFile == null) {
-            throw new GradleException('station.json が取得できていません。app/build.gradle の stationData 定義を確認してください。')
-        }
-
         def stations = new groovy.json.JsonSlurper().parse(srcFile)
 
         // station.json の voronoi はそのまま GeoJSON の Feature なので、properties を埋めるだけでよい。
         // 分割範囲の端にある駅は LineString なので、始点と終点を結んで閉じる（全て Polygon になる）
         def features = stations.collect { station ->
-            def geometry = station.voronoi.geometry
-            def ring = (geometry.type == 'Polygon')
-                    ? geometry.coordinates[0]
-                    : geometry.coordinates + [geometry.coordinates[0]]
-
-            [type: 'Feature',
-             properties: [c: station.code, a: station.attr ?: 'unknown'],
-             geometry: [type: 'Polygon', coordinates: [ring]]]
+            def voronoi = station.voronoi
+            def coordinates = voronoi.geometry.coordinates
+            if (voronoi.geometry.type != 'Polygon') {
+                voronoi.geometry.type = 'Polygon'
+                voronoi.geometry.coordinates = [coordinates + [coordinates[0]]]
+            }
+            voronoi.properties = [c: station.code, a: station.attr ?: 'unknown']
+            voronoi
         }
 
-        voronoiGeoJsonFile.text = groovy.json.JsonOutput.toJson([type: 'FeatureCollection', features: features])
-        logger.lifecycle("voronoi.geojson: ${features.size()} features, ${voronoiGeoJsonFile.length()} bytes")
+        file('src/main/assets/voronoi.geojson').text =
+                groovy.json.JsonOutput.toJson([type: 'FeatureCollection', features: features])
     }
 }
 
