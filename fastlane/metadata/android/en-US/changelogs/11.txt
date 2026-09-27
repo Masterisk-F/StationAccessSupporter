@@ -1,0 +1,4 @@
+Added a feature to display Voronoi diagrams on the map.
+Each Voronoi region is colored according to the station attribute in Station Memories! (Eki-memo!).
+
+Data Version : v20260831
