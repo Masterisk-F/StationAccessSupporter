@@ -7,6 +7,7 @@ Also, you can check information on closed stations (abandoned stations) that are
 
 - Uses device location information to notify you with vibration whenever the nearest station from your current location changes.
 - Covers almost all existing stations in Japan, and data for some abandoned stations.
+- Displays a Voronoi diagram (station areas) for each station on the map. Each area is colored according to the station attribute in Station Memories! (Eki-memo!).
 
 <b>Permissions:</b>
 
