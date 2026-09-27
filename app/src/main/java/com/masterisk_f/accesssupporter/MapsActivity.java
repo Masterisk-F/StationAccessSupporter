@@ -31,7 +31,15 @@ import com.masterisk_f.accesssupporter.StationData.Station;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import org.maplibre.android.annotations.Icon;
+import org.maplibre.android.style.expressions.Expression;
+import org.maplibre.android.style.layers.FillLayer;
+import org.maplibre.android.style.layers.Layer;
+import org.maplibre.android.style.layers.LineLayer;
+import org.maplibre.android.style.layers.Property;
+import org.maplibre.android.style.layers.PropertyFactory;
+import org.maplibre.android.style.sources.GeoJsonSource;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +49,13 @@ import java.util.List;
 	private MapLibreMap mMap;
 	private MapView mapView;
 	
+	private static final String VORONOI_SOURCE_ID = "voronoi";
+	private Layer voronoiFillLayer;
+	private Layer voronoiLineLayer;
+
 	ToggleButton nearbyStationButton;
 	ToggleButton historyButton;
+	ToggleButton voronoiButton;
 	
 	List<Marker> nearbyStations;
 	List<Marker> historyStations;
@@ -73,6 +86,9 @@ import java.util.List;
 		
 		historyButton=(ToggleButton)findViewById(R.id.showHistory);
 		historyButton.setOnCheckedChangeListener(this);
+
+		voronoiButton=(ToggleButton)findViewById(R.id.showVoronoi);
+		voronoiButton.setOnCheckedChangeListener(this);
 		
 		IntentFilter filter=new IntentFilter();
 		filter.addAction(AccessSupporterService.LOCATION_CANGED);
@@ -147,6 +163,38 @@ import java.util.List;
 					mMap.getLocationComponent().activateLocationComponent(locationComponentActivationOptions);
 					mMap.getLocationComponent().setLocationComponentEnabled(true);
 				}
+
+				// station.json からビルド時に生成したボロノイ図（app/src/main/assets/voronoi.geojson）
+				// URI で渡さないと asset ではなく素の GeoJSON 文字列として解釈されてしまう
+				style.addSource(new GeoJsonSource(VORONOI_SOURCE_ID, URI.create("asset://voronoi.geojson")));
+
+				// 駅の属性（駅メモの eco/heat/cool）で色分けする
+				// 第一引数の色は、属性が未知（unknown＝廃駅など）の駅に適用される
+				Expression attrColor = Expression.match(
+						Expression.get("a"),
+						Expression.color(0xFF9E9E9E),          // unknown（廃駅など）
+						Expression.stop("eco", Expression.color(0xFF2E7D32)),   // 緑
+						Expression.stop("heat", Expression.color(0xFFE53935)),  // 赤
+						Expression.stop("cool", Expression.color(0xFF1E88E5))); // 青
+
+				String voronoiVisibility = voronoiButton.isChecked() ? Property.VISIBLE : Property.NONE;
+
+				voronoiFillLayer = new FillLayer("voronoi-fill", VORONOI_SOURCE_ID)
+						.withProperties(
+								PropertyFactory.fillColor(attrColor),
+								PropertyFactory.fillOpacity(0.3f),
+								PropertyFactory.visibility(voronoiVisibility));
+				style.addLayer(voronoiFillLayer);
+
+				// 分割線は LineLayer で描く（fill-opacity の影響を受けず、幅も指定できる）
+				voronoiLineLayer = new LineLayer("voronoi-line", VORONOI_SOURCE_ID)
+						.withProperties(
+								PropertyFactory.lineColor(0xFF000000),
+								PropertyFactory.lineWidth(1.5f),
+								PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
+								PropertyFactory.lineCap(Property.LINE_CAP_BUTT),
+								PropertyFactory.visibility(voronoiVisibility));
+				style.addLayer(voronoiLineLayer);
 			}
 		});
 		
@@ -173,8 +221,22 @@ import java.util.List;
 			setNearbyStations();
 		}else if(buttonView==historyButton){
 			setHistoryStations();
+		}else if(buttonView==voronoiButton){
+			setVoronoiVisible(voronoiButton.isChecked());
 		}
-		
+	}
+
+	/**
+	 * ボロノイ図（駅の支配領域）の表示を切り替える
+	 */
+	void setVoronoiVisible(boolean visible){
+		String visibility = visible ? Property.VISIBLE : Property.NONE;
+		if(voronoiFillLayer!=null){
+			voronoiFillLayer.setProperties(PropertyFactory.visibility(visibility));
+		}
+		if(voronoiLineLayer!=null){
+			voronoiLineLayer.setProperties(PropertyFactory.visibility(visibility));
+		}
 	}
 	void setNearbyStations(){
 		// 既存のマーカーを削除
